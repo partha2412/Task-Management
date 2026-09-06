@@ -1,10 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import securityMiddleware from "./middlewares/security.middleware.js";
 import errorHandler from "./middlewares/errorHandler.middleware.js";
-import cors from "cors";
+
 import authRoutes from "./routes/auth.routes.js";
 import taskRoutes from "./routes/task.routes.js";
 
@@ -14,6 +16,11 @@ import env from "./config/env.js";
 export default function createApp() {
     const app = express();
 
+    // Required when deployed behind a proxy
+    // e.g. Render, Railway, etc.
+    app.set("trust proxy", 1);
+
+    // CORS
     app.use(
         cors({
             origin: env.CLIENT_URL,
@@ -23,6 +30,9 @@ export default function createApp() {
 
     // Security
     securityMiddleware(app);
+
+    // Cookie parser
+    app.use(cookieParser());
 
     // Body parser
     app.use(express.json({ limit: "10kb" }));
@@ -40,15 +50,14 @@ export default function createApp() {
 
                         let coloredStatus = String(status);
 
-                        // ANSI colors
                         if (status >= 200 && status < 300) {
-                            coloredStatus = `\x1b[32m${status}\x1b[0m`; // Green
+                            coloredStatus = `\x1b[32m${status}\x1b[0m`;
                         } else if (status >= 300 && status < 400) {
-                            coloredStatus = `\x1b[36m${status}\x1b[0m`; // Cyan
+                            coloredStatus = `\x1b[36m${status}\x1b[0m`;
                         } else if (status >= 400 && status < 500) {
-                            coloredStatus = `\x1b[33m${status}\x1b[0m`; // Yellow
+                            coloredStatus = `\x1b[33m${status}\x1b[0m`;
                         } else if (status >= 500) {
-                            coloredStatus = `\x1b[31m${status}\x1b[0m`; // Red
+                            coloredStatus = `\x1b[31m${status}\x1b[0m`;
                         }
 
                         const coloredMessage = message
@@ -96,7 +105,6 @@ export default function createApp() {
     app.use("/api/auth", authRoutes);
     app.use("/api/tasks", taskRoutes);
 
-    
     // 404
     app.use((req, res) => {
         res.status(404).json({

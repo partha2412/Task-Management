@@ -4,14 +4,22 @@ import morgan from "morgan";
 
 import securityMiddleware from "./middlewares/security.middleware.js";
 import errorHandler from "./middlewares/errorHandler.middleware.js";
-
+import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import taskRoutes from "./routes/task.routes.js";
 
 import logger from "./config/logger.js";
+import env from "./config/env.js";
 
 export default function createApp() {
     const app = express();
+
+    app.use(
+        cors({
+            origin: env.CLIENT_URL,
+            credentials: true,
+        })
+    );
 
     // Security
     securityMiddleware(app);

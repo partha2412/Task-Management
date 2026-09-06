@@ -18,8 +18,11 @@ import {
     forgotPassword,
 } from "../api/auth";
 
+import { useAuth } from "../context/AuthContext";
+
 const Auth = () => {
     const navigate = useNavigate();
+    const { setUser } = useAuth();
 
     const [isLogin, setIsLogin] = useState(true);
     const [showForgotPassword, setShowForgotPassword] =
@@ -28,8 +31,7 @@ const Auth = () => {
     const [forgotEmail, setForgotEmail] = useState("");
     const [forgotMessage, setForgotMessage] = useState("");
 
-    const [successMessage, setSuccessMessage] =
-        useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -77,14 +79,15 @@ const Auth = () => {
 
                 console.log("Login response:", response);
 
-                /*
-                 * Login generates the authentication
-                 * token/cookie on the backend.
-                 *
-                 * Therefore the user can access
-                 * the dashboard.
-                 */
-                navigate("/dashboard");
+                if (response.success) {
+                    setUser(response.data);
+                    window.location.href = "/dashboard";
+                } else {
+                    setError(
+                        response.message ||
+                        "Login failed. Please try again."
+                    );
+                }
             } else {
                 // =========================
                 // SIGNUP
@@ -98,14 +101,7 @@ const Auth = () => {
 
                 console.log("Signup response:", response);
 
-                /*
-                 * Signup does NOT generate a token.
-                 *
-                 * Therefore:
-                 * - Do NOT navigate to dashboard
-                 * - Switch user to login
-                 */
-
+                // Signup does not automatically log in
                 setIsLogin(true);
 
                 setFormData({
@@ -119,10 +115,7 @@ const Auth = () => {
                 );
             }
         } catch (error) {
-            console.error(
-                "Authentication error:",
-                error
-            );
+            console.error("Authentication error:", error);
 
             setError(
                 error.response?.data?.message ||
@@ -151,9 +144,7 @@ const Auth = () => {
         try {
             setLoading(true);
 
-            const response = await forgotPassword(
-                forgotEmail
-            );
+            const response = await forgotPassword(forgotEmail);
 
             setForgotMessage(
                 response?.message ||
@@ -216,9 +207,8 @@ const Auth = () => {
 
     return (
         <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f8fc] px-4 py-8 sm:px-6">
-            {/* =========================
-                Background
-            ========================= */}
+
+            {/* Background */}
 
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl" />
@@ -229,9 +219,8 @@ const Auth = () => {
             </div>
 
             <div className="relative z-10 w-full max-w-md">
-                {/* =========================
-                    Logo
-                ========================= */}
+
+                {/* Logo */}
 
                 <Link
                     to="/"
@@ -252,15 +241,16 @@ const Auth = () => {
                     </span>
                 </Link>
 
-                {/* =========================
-                    Auth Card
-                ========================= */}
+                {/* Auth Card */}
 
                 <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xl shadow-slate-200/60">
+
                     {/* Top accent */}
+
                     <div className="h-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-500" />
 
                     <div className="p-6 sm:p-8">
+
                         {showForgotPassword ? (
                             <ForgotPasswordForm
                                 email={forgotEmail}
@@ -268,16 +258,13 @@ const Auth = () => {
                                 loading={loading}
                                 error={error}
                                 message={forgotMessage}
-                                onSubmit={
-                                    handleForgotPassword
-                                }
+                                onSubmit={handleForgotPassword}
                                 onBack={backToLogin}
                             />
                         ) : (
                             <>
-                                {/* =========================
-                                    Heading
-                                ========================= */}
+
+                                {/* Heading */}
 
                                 <div className="mb-7 text-center">
                                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
@@ -301,9 +288,7 @@ const Auth = () => {
                                     </p>
                                 </div>
 
-                                {/* =========================
-                                    Success Message
-                                ========================= */}
+                                {/* Success Message */}
 
                                 {successMessage && (
                                     <div className="mb-5 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-600">
@@ -311,9 +296,7 @@ const Auth = () => {
                                     </div>
                                 )}
 
-                                {/* =========================
-                                    Error
-                                ========================= */}
+                                {/* Error */}
 
                                 {error && (
                                     <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-5 text-red-600">
@@ -321,55 +304,45 @@ const Auth = () => {
                                     </div>
                                 )}
 
-                                {/* =========================
-                                    Form
-                                ========================= */}
+                                {/* Form */}
 
                                 <form
                                     onSubmit={handleSubmit}
                                     className="space-y-4"
                                 >
+
                                     {/* Name */}
+
                                     {!isLogin && (
                                         <InputField
                                             label="Full name"
                                             name="name"
                                             type="text"
-                                            value={
-                                                formData.name
-                                            }
-                                            onChange={
-                                                handleChange
-                                            }
+                                            value={formData.name}
+                                            onChange={handleChange}
                                             placeholder="Enter your name"
                                             icon={
-                                                <User
-                                                    size={17}
-                                                />
+                                                <User size={17} />
                                             }
                                         />
                                     )}
 
                                     {/* Email */}
+
                                     <InputField
                                         label="Email address"
                                         name="email"
                                         type="email"
-                                        value={
-                                            formData.email
-                                        }
-                                        onChange={
-                                            handleChange
-                                        }
+                                        value={formData.email}
+                                        onChange={handleChange}
                                         placeholder="you@example.com"
                                         icon={
-                                            <Mail
-                                                size={17}
-                                            />
+                                            <Mail size={17} />
                                         }
                                     />
 
                                     {/* Password */}
+
                                     <div>
                                         <div className="mb-2 flex items-center justify-between">
                                             <label className="text-sm font-semibold text-slate-700">
@@ -390,6 +363,7 @@ const Auth = () => {
                                         </div>
 
                                         <div className="relative">
+
                                             <Lock
                                                 size={17}
                                                 className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
@@ -425,13 +399,9 @@ const Auth = () => {
                                                 className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
                                             >
                                                 {showPassword ? (
-                                                    <EyeOff
-                                                        size={17}
-                                                    />
+                                                    <EyeOff size={17} />
                                                 ) : (
-                                                    <Eye
-                                                        size={17}
-                                                    />
+                                                    <Eye size={17} />
                                                 )}
                                             </button>
                                         </div>
@@ -445,6 +415,7 @@ const Auth = () => {
                                     </div>
 
                                     {/* Submit */}
+
                                     <button
                                         type="submit"
                                         disabled={loading}
@@ -470,9 +441,7 @@ const Auth = () => {
                                     </button>
                                 </form>
 
-                                {/* =========================
-                                    Divider
-                                ========================= */}
+                                {/* Divider */}
 
                                 <div className="my-6 flex items-center gap-3">
                                     <div className="h-px flex-1 bg-slate-100" />
@@ -484,9 +453,7 @@ const Auth = () => {
                                     <div className="h-px flex-1 bg-slate-100" />
                                 </div>
 
-                                {/* =========================
-                                    Switch Auth
-                                ========================= */}
+                                {/* Switch Auth */}
 
                                 <div className="text-center text-sm text-slate-500">
                                     {isLogin
@@ -495,9 +462,7 @@ const Auth = () => {
 
                                     <button
                                         type="button"
-                                        onClick={
-                                            switchAuthMode
-                                        }
+                                        onClick={switchAuthMode}
                                         className="ml-1 font-bold text-indigo-600 transition hover:text-indigo-700"
                                     >
                                         {isLogin
@@ -509,9 +474,7 @@ const Auth = () => {
                         )}
                     </div>
 
-                    {/* =========================
-                        Security Footer
-                    ========================= */}
+                    {/* Security Footer */}
 
                     <div className="flex items-center justify-center gap-2 border-t border-slate-100 bg-slate-50/70 px-5 py-3.5 text-[11px] font-medium text-slate-400">
                         <ShieldCheck size={14} />
@@ -520,6 +483,7 @@ const Auth = () => {
                 </div>
 
                 {/* Footer */}
+
                 <p className="mx-auto mt-5 max-w-sm text-center text-[11px] leading-5 text-slate-400">
                     By continuing, you agree to our Terms of Service
                     and Privacy Policy.
@@ -583,6 +547,7 @@ const ForgotPasswordForm = ({
     return (
         <>
             {/* Back */}
+
             <button
                 type="button"
                 onClick={onBack}
@@ -593,6 +558,7 @@ const ForgotPasswordForm = ({
             </button>
 
             {/* Heading */}
+
             <div className="mb-7">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
                     <Mail size={22} />
@@ -609,6 +575,7 @@ const ForgotPasswordForm = ({
             </div>
 
             {/* Error */}
+
             {error && (
                 <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-5 text-red-600">
                     {error}
@@ -616,6 +583,7 @@ const ForgotPasswordForm = ({
             )}
 
             {/* Success */}
+
             {message && (
                 <div className="mb-5 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm leading-5 text-emerald-600">
                     {message}
@@ -623,6 +591,7 @@ const ForgotPasswordForm = ({
             )}
 
             {/* Form */}
+
             <form
                 onSubmit={onSubmit}
                 className="space-y-5"
@@ -652,6 +621,7 @@ const ForgotPasswordForm = ({
                     ) : (
                         <>
                             Send reset link
+
                             <ArrowRight
                                 size={17}
                                 className="transition-transform group-hover:translate-x-1"

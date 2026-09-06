@@ -28,11 +28,11 @@ export default function createApp() {
         })
     );
 
-    // Security
-    securityMiddleware(app);
-
     // Cookie parser
     app.use(cookieParser());
+
+    // Security
+    securityMiddleware(app);
 
     // Body parser
     app.use(express.json({ limit: "10kb" }));

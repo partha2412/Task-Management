@@ -15,7 +15,6 @@ import {
 
 import logger from "../config/logger.js";
 
-
 // ==================== SIGNUP ====================
 
 export const signup = async (req, res, next) => {
@@ -32,7 +31,6 @@ export const signup = async (req, res, next) => {
             message: "Signup successful",
             user,
         });
-
     } catch (error) {
         next(error);
     }
@@ -44,14 +42,11 @@ export const login = async (req, res, next) => {
     try {
         const { token, user } = await loginUser(req.body);
 
-        const cookieOptions = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        };
-
-        res.cookie("token", token, cookieOptions);
+        res.cookie(
+            "token",
+            token,
+            cookieOptions
+        );
 
         logger.info(
             { userId: user.id },
@@ -63,11 +58,12 @@ export const login = async (req, res, next) => {
             message: "Login successful",
             user,
         });
-
     } catch (error) {
         next(error);
     }
 };
+
+// ==================== CURRENT USER ====================
 
 export const getCurrentUserController = async (req, res) => {
     try {
@@ -80,12 +76,12 @@ export const getCurrentUserController = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: user,
         });
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message,
         });
@@ -96,15 +92,19 @@ export const getCurrentUserController = async (req, res) => {
 
 export const logout = async (req, res, next) => {
     try {
-        res.clearCookie("token", cookieOptions);
+        res.clearCookie(
+            "token",
+            cookieOptions
+        );
 
-        logger.info("User logged out successfully");
+        logger.info(
+            "User logged out successfully"
+        );
 
         return res.status(200).json({
             success: true,
             message: "Logout successful",
         });
-
     } catch (error) {
         next(error);
     }
@@ -120,19 +120,17 @@ export const forgotPasswordController = async (
     try {
         const { email } = req.body;
 
-        await forgotPassword(email); 
+        await forgotPassword(email);
 
         return res.status(200).json({
             success: true,
             message:
                 "If an account exists with this email, a password reset link has been sent.",
         });
-
     } catch (error) {
         next(error);
     }
 };
-
 
 // ==================== RESET PASSWORD ====================
 
@@ -146,14 +144,11 @@ export const resetPasswordController = async (
         const { password } = req.body;
 
         await resetPassword(token, password);
-        
-        
 
         return res.status(200).json({
             success: true,
             message: "Password reset successful",
         });
-
     } catch (error) {
         next(error);
     }

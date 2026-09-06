@@ -80,7 +80,7 @@ const Auth = () => {
                 // console.log("Login response:", response);
 
                 if (response.success) {
-                    setUser(response.data);
+                    setUser(response.user);
                     window.location.href = "/dashboard";
                 } else {
                     setError(

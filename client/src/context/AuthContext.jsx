@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
+
 import { getCurrentUser } from "../api/auth";
 
 const AuthContext = createContext(null);
@@ -14,6 +20,8 @@ export const AuthProvider = ({ children }) => {
 
                 if (response.success) {
                     setUser(response.data);
+                } else {
+                    setUser(null);
                 }
             } catch (error) {
                 setUser(null);

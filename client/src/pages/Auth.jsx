@@ -77,7 +77,7 @@ const Auth = () => {
                     password: formData.password,
                 });
 
-                console.log("Login response:", response);
+                // console.log("Login response:", response);
 
                 if (response.success) {
                     setUser(response.data);
@@ -99,7 +99,7 @@ const Auth = () => {
                     password: formData.password,
                 });
 
-                console.log("Signup response:", response);
+                // console.log("Signup response:", response);
 
                 // Signup does not automatically log in
                 setIsLogin(true);

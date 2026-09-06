@@ -74,6 +74,9 @@ JWT_SECRET=your_jwt_secret
 TOKEN_EXP_TIME=7d
 
 CLIENT_URL=http://localhost:5173
+
+EMAIL_USER=User_Gamil
+EMAIL_PASSWORD=App_Password
 ```
 
 Start the backend:
@@ -122,7 +125,8 @@ Make sure MongoDB is running locally or use a MongoDB Atlas connection string.
 | `MONGO_URI` | MongoDB connection string |
 | `JWT_SECRET` | Secret used to sign JWTs |
 | `TOKEN_EXP_TIME` | JWT expiration time |
-| `CLIENT_URL` | Frontend URL |
+| `EMAIL_USER` | User Gmail |
+| `EMAIL_PASSWORD` | App Password |
 
 ### Frontend
 
